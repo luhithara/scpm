@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController();
 
   // Alamat API Laravel untuk pengujian Flutter di Chrome.
-  static const String _baseUrl = 'http://127.0.0.1:8000/api';
+  static const String _baseUrl = 'https://scpskansaba.web.id/api';
 
   static const Color _primaryColor = Color(0xFF172B4D);
   static const Color _backgroundColor = Color(0xFFF5F7FB);
