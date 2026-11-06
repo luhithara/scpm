@@ -28,6 +28,19 @@ class _SiswaIzinScreenState extends State<SiswaIzinScreen> {
   Future<List<IzinModel>> _load() => IzinService.instance.list(siswaId: AuthService.instance.current!.id);
   void _reload() => setState(() => _future = _load());
 
+  Future<void> _unggahUlang(IzinModel izin) async {
+    try {
+      final x = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 70, maxWidth: 1600);
+      if (x == null || !mounted) return;
+      await IzinService.instance.unggahUlangBukti(izin.id, x.path);
+      if (!mounted) return;
+      showMsg(context, 'Bukti berhasil diunggah ulang');
+      _reload();
+    } catch (e) {
+      if (mounted) showMsg(context, pesanError(e), error: true);
+    }
+  }
+
   Future<void> _ajukan() async {
     final ok = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => const IzinFormScreen()));
     if (ok == true && mounted) _reload();
@@ -106,6 +119,15 @@ class _SiswaIzinScreenState extends State<SiswaIzinScreen> {
                         const SizedBox(height: 6),
                         Text('Oleh ${z.diprosesOleh}', style: const TextStyle(fontSize: 12, color: AppTheme.grey)),
                       ],
+                      if (z.status == StatusIzin.ditolak)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton.icon(
+                            onPressed: () => _unggahUlang(z),
+                            icon: const Icon(Icons.camera_alt_outlined),
+                            label: const Text('Unggah ulang bukti'),
+                          ),
+                        ),
                     ],
                   ),
                 );

@@ -51,6 +51,14 @@ class IzinService {
     if (ApiConfig.useMock) {
       return _m.prosesIzin(id, setuju, AuthService.instance.current!, catatan: catatan);
     }
+
+    Future<IzinModel> unggahUlangBukti(String id, String path) async {
+      if (ApiConfig.useMock) {
+        return (await list(siswaId: AuthService.instance.current!.id)).firstWhere((e) => e.id == id);
+      }
+      final res = await _api.postMultipart('/izin/$id/bukti', {}, files: {'bukti': path});
+      return IzinModel.fromJson(_api.asMap(res));
+    }
     final res = await _api.put('/izin/$id/proses', body: {'setuju': setuju, 'catatan': catatan});
     return IzinModel.fromJson(_api.asMap(res));
   }

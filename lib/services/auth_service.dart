@@ -84,10 +84,20 @@ class AuthService {
       role: old.role,
       kelas: old.kelas,
       mapel: old.mapel,
+      fotoProfil: old.fotoProfil,
       token: old.token,
     );
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('scpuser', jsonEncode(current!.toJson()));
+  }
+
+  Future<void> uploadProfilePhoto(String path) async {
+    if (ApiConfig.useMock) return;
+    final map = ApiServices.instance.asMap(await ApiServices.instance.postMultipart('/profil/foto', {}, files: {'foto': path}));
+    final user = UserModel.fromJson(map['user'] is Map ? Map<String, dynamic>.from(map['user'] as Map) : map, token: current!.token);
+    current = user;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('scpuser', jsonEncode(user.toJson()));
   }
 
   Future<String> lupaPassword(String username, {String jenisAkun = 'siswa'}) async {

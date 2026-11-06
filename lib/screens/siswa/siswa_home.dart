@@ -70,6 +70,13 @@ class _SiswaHomeState extends State<SiswaHome> {
                 StatCard(title: 'Sakit', value: '${n(StatusHadir.sakit)}', icon: Icons.healing_outlined, color: AppTheme.orange),
                 StatCard(title: 'Alpa', value: '${n(StatusHadir.alpa)}', icon: Icons.cancel_outlined, color: AppTheme.red),
               ]),
+              const SectionTitle('Grafik kehadiran'),
+              _KehadiranChart(
+                hadir: n(StatusHadir.hadir),
+                izin: n(StatusHadir.izin),
+                sakit: n(StatusHadir.sakit),
+                alpa: n(StatusHadir.alpa),
+              ),
               SectionTitle('Jadwal hari ini · ${Fmt.tglPanjang(_tgl)}'),
               if (d.sesi.isEmpty) const EmptyState('Tidak ada pelajaran hari ini', icon: Icons.free_breakfast_outlined),
               for (final j in d.sesi)
@@ -103,6 +110,50 @@ class _SiswaHomeState extends State<SiswaHome> {
           ),
         );
       },
+    );
+  }
+}
+
+class _KehadiranChart extends StatelessWidget {
+  final int hadir;
+  final int izin;
+  final int sakit;
+  final int alpa;
+  const _KehadiranChart({required this.hadir, required this.izin, required this.sakit, required this.alpa});
+
+  @override
+  Widget build(BuildContext context) {
+    final total = hadir + izin + sakit + alpa;
+    final rows = [
+      ('Hadir', hadir, AppTheme.teal),
+      ('Izin', izin, AppTheme.blue),
+      ('Sakit', sakit, AppTheme.orange),
+      ('Alpa', alpa, AppTheme.red),
+    ];
+    return SCard(
+      child: Column(
+        children: [
+          for (final row in rows)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(
+                children: [
+                  SizedBox(width: 48, child: Text(row.$1, style: const TextStyle(fontSize: 12))),
+                  Expanded(
+                    child: LinearProgressIndicator(
+                      value: total == 0 ? 0 : row.$2 / total,
+                      minHeight: 8,
+                      borderRadius: BorderRadius.circular(8),
+                      color: row.$3,
+                      backgroundColor: row.$3.withValues(alpha: 0.12),
+                    ),
+                  ),
+                  SizedBox(width: 32, child: Text('${row.$2}', textAlign: TextAlign.end)),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

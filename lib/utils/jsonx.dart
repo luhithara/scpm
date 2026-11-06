@@ -15,6 +15,11 @@ class Jx {
     return int.tryParse(v?.toString() ?? '') ?? def;
   }
 
+  static int? integerOrNull(dynamic v) {
+    if (v == null || v.toString().isEmpty) return null;
+    return integer(v);
+  }
+
   static bool boolean(dynamic v) {
     if (v is bool) return v;
     final s = v?.toString().toLowerCase();

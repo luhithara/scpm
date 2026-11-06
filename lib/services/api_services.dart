@@ -73,7 +73,7 @@ class ApiServices {
       _run(() async => _decode(await http.delete(_uri(path), headers: _headers)));
 
   Future<dynamic> postMultipart(String path, Map<String, String> fields,
-          {Map<String, String> files = const {}}) =>
+      {Map<String, String> files = const {}}) =>
       _run(() async {
         final req = http.MultipartRequest('POST', _uri(path));
         req.headers.addAll({
@@ -87,7 +87,6 @@ class ApiServices {
         return _decode(await http.Response.fromStream(await req.send()));
       });
 
-  /// Ambil daftar objek. Mendukung respons `[...]` maupun `{ "data": [...] }`.
   Future<List<T>> list<T>(String path, T Function(Map<String, dynamic>) parse,
       {Map<String, dynamic>? query}) async {
     final d = await get(path, query: query);

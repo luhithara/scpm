@@ -52,11 +52,23 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.bg,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(25),
-            child: Form(
+      body: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 190,
+            child: Opacity(
+              opacity: 0.12,
+              child: Image.asset('web/favicon.png', fit: BoxFit.cover),
+            ),
+          ),
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(25),
+                child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -156,9 +168,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Text('© 2026 SCP - School Class Progress',
                       textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12)),
                 ],
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

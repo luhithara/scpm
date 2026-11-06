@@ -137,6 +137,10 @@ class _GuruJurnalFormState extends State<GuruJurnalForm> {
       if (!mounted) return;
       setState(() {
         _ada = v;
+        if (v != null) {
+          _materi.text = v.materi;
+          _catatan.text = v.catatan;
+        }
         _loading = false;
       });
     }).catchError((e) {
@@ -166,11 +170,16 @@ class _GuruJurnalFormState extends State<GuruJurnalForm> {
       showMsg(context, 'Materi wajib diisi', error: true);
       return;
     }
-    if (_foto.isEmpty) {
+    if (_foto.isEmpty && _ada == null) {
       showMsg(context, 'Ambil foto kegiatan dari kamera terlebih dahulu', error: true);
       return;
     }
-    final ya = await konfirmasi(context, 'Simpan jurnal?', 'Setelah disimpan, jurnal tidak dapat diubah.', ya: 'Simpan');
+    final ya = await konfirmasi(
+      context,
+      _ada == null ? 'Simpan jurnal?' : 'Perbarui jurnal?',
+      'Perubahan hanya diperbolehkan pada hari ini.',
+      ya: _ada == null ? 'Simpan' : 'Perbarui',
+    );
     if (!ya || !mounted) return;
     setState(() => _saving = true);
     try {
@@ -194,6 +203,8 @@ class _GuruJurnalFormState extends State<GuruJurnalForm> {
   @override
   Widget build(BuildContext context) {
     final j = widget.jadwal;
+    final hariIni = Fmt.tanggalSaja(widget.tanggal) == Fmt.hariIni();
+    final bolehEdit = hariIni && _ada != null;
     return Scaffold(
       appBar: scpAppBar('Jurnal Mengajar'),
       body: _loading
@@ -210,14 +221,17 @@ class _GuruJurnalFormState extends State<GuruJurnalForm> {
                     ],
                   ),
                 ),
-                if (_ada != null) SCard(child: _DetailJurnal(_ada!)) else ..._form(),
+                if (_ada != null && !bolehEdit) SCard(child: _DetailJurnal(_ada!)) else ..._form(edit: bolehEdit),
               ],
             ),
     );
   }
 
-  List<Widget> _form() => [
-        const InfoBanner('Jurnal diisi saat pembelajaran berlangsung dan tidak dapat diubah setelah disimpan.', icon: Icons.info_outline),
+  List<Widget> _form({bool edit = false}) => [
+        InfoBanner(
+          edit ? 'Jurnal hari ini masih dapat diperbarui.' : 'Jurnal hanya dapat diisi pada hari jadwal dan tidak dapat diubah setelah hari berganti.',
+          icon: edit ? Icons.edit_outlined : Icons.info_outline,
+        ),
         const Text('Materi *', style: TextStyle(fontWeight: FontWeight.w600)),
         const SizedBox(height: 8),
         TextField(controller: _materi, maxLines: 2, decoration: inputDeco('Materi yang diajarkan')),
@@ -238,7 +252,7 @@ class _GuruJurnalFormState extends State<GuruJurnalForm> {
         FilledButton.icon(
           onPressed: _saving ? null : _simpan,
           icon: const Icon(Icons.lock_outline),
-          label: Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Text(_saving ? 'Menyimpan...' : 'Simpan Jurnal')),
+          label: Padding(padding: const EdgeInsets.symmetric(vertical: 12), child: Text(_saving ? 'Menyimpan...' : edit ? 'Perbarui Jurnal' : 'Simpan Jurnal')),
         ),
       ];
 }

@@ -11,6 +11,10 @@ class JadwalModel {
   final String guruId;
   final String guruNama;
   final String? ruangan;
+  final int? putaranBlok;
+  final int? blok;
+  final DateTime? tanggalMulaiBlok;
+  final DateTime? tanggalSelesaiBlok;
 
   const JadwalModel({
     required this.id,
@@ -22,6 +26,10 @@ class JadwalModel {
     required this.guruId,
     required this.guruNama,
     this.ruangan,
+    this.putaranBlok,
+    this.blok,
+    this.tanggalMulaiBlok,
+    this.tanggalSelesaiBlok,
   });
 
   String get jam => '$jamMulai - $jamSelesai';
@@ -42,6 +50,10 @@ class JadwalModel {
     String? guruId,
     String? guruNama,
     String? ruangan,
+    int? putaranBlok,
+    int? blok,
+    DateTime? tanggalMulaiBlok,
+    DateTime? tanggalSelesaiBlok,
   }) =>
       JadwalModel(
         id: id ?? this.id,
@@ -53,6 +65,10 @@ class JadwalModel {
         guruId: guruId ?? this.guruId,
         guruNama: guruNama ?? this.guruNama,
         ruangan: ruangan ?? this.ruangan,
+        putaranBlok: putaranBlok ?? this.putaranBlok,
+        blok: blok ?? this.blok,
+        tanggalMulaiBlok: tanggalMulaiBlok ?? this.tanggalMulaiBlok,
+        tanggalSelesaiBlok: tanggalSelesaiBlok ?? this.tanggalSelesaiBlok,
       );
 
   factory JadwalModel.fromJson(Map<String, dynamic> j) => JadwalModel(
@@ -65,6 +81,10 @@ class JadwalModel {
         guruId: Jx.str(j['guruId']),
         guruNama: Jx.str(j['guruNama']),
         ruangan: Jx.strOrNull(j['ruangan']),
+        putaranBlok: Jx.integerOrNull(j['putaranBlok'] ?? j['putaranblok']),
+        blok: Jx.integerOrNull(j['blok']),
+        tanggalMulaiBlok: Jx.dateOrNull(j['tanggalMulaiBlok'] ?? j['tanggalMulai']),
+        tanggalSelesaiBlok: Jx.dateOrNull(j['tanggalSelesaiBlok'] ?? j['tanggalSelesai']),
       );
 
   Map<String, dynamic> toJson() => {

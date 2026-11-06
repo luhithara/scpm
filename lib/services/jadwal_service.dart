@@ -25,7 +25,15 @@ class JadwalService {
     final t = tgl ?? Fmt.hariIni();
     if (t.weekday > 5) return [];
     final all = await list(kelas: kelas, guruId: guruId, hari: t.weekday);
-    return all.where((j) => BlokPutaran.kelasAktif(j.kelas, t)).toList();
+    return all.where((j) {
+      if (j.tanggalMulaiBlok != null && j.tanggalSelesaiBlok != null) {
+        final hari = DateTime(t.year, t.month, t.day);
+        final mulai = DateTime(j.tanggalMulaiBlok!.year, j.tanggalMulaiBlok!.month, j.tanggalMulaiBlok!.day);
+        final selesai = DateTime(j.tanggalSelesaiBlok!.year, j.tanggalSelesaiBlok!.month, j.tanggalSelesaiBlok!.day);
+        return !hari.isBefore(mulai) && !hari.isAfter(selesai);
+      }
+      return BlokPutaran.kelasAktif(j.kelas, t);
+    }).toList();
   }
 
   Future<List<String>> daftarKelas() async {

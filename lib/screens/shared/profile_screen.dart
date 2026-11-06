@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../config/app_routes.dart';
 import '../../models/usermodel.dart';
 import '../../services/api_services.dart';
@@ -7,6 +8,7 @@ import '../../theme/app_theme.dart';
 import '../../utils/format.dart';
 import '../../widgets/scp_widgets.dart';
 import 'log_screen.dart';
+import 'import_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -29,11 +31,7 @@ class ProfileScreen extends StatelessWidget {
         SCard(
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 36,
-                backgroundColor: AppTheme.navy,
-                child: Text(Fmt.inisial(u.nama), style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
+              _FotoProfilEditor(user: u),
               const SizedBox(height: 12),
               Text(u.nama, textAlign: TextAlign.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.navy)),
               const SizedBox(height: 4),
@@ -72,6 +70,15 @@ class ProfileScreen extends StatelessWidget {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LogScreen())),
                 ),
+                if (u.role == UserRole.guru || u.role == UserRole.waka) ...[
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.upload_file, color: AppTheme.navy),
+                    title: const Text('Import Excel'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportScreen())),
+                  ),
+                ],
               ],
             ],
           ),
@@ -85,6 +92,65 @@ class ProfileScreen extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  class _FotoProfilEditor extends StatefulWidget {
+    final UserModel user;
+    const _FotoProfilEditor({required this.user});
+
+    @override
+    State<_FotoProfilEditor> createState() => _FotoProfilEditorState();
+  }
+
+  class _FotoProfilEditorState extends State<_FotoProfilEditor> {
+    bool _loading = false;
+
+    Future<void> _pilih() async {
+      final source = await showModalBottomSheet<ImageSource>(
+        context: context,
+        builder: (c) => SafeArea(
+          child: Wrap(children: [
+            ListTile(leading: const Icon(Icons.camera_alt), title: const Text('Kamera'), onTap: () => Navigator.pop(c, ImageSource.camera)),
+            ListTile(leading: const Icon(Icons.photo_library), title: const Text('Galeri'), onTap: () => Navigator.pop(c, ImageSource.gallery)),
+          ]),
+        ),
+      );
+      if (source == null) return;
+      final file = await ImagePicker().pickImage(source: source, imageQuality: 75, maxWidth: 1200);
+      if (file == null || !mounted) return;
+      setState(() => _loading = true);
+      try {
+        await AuthService.instance.uploadProfilePhoto(file.path);
+        if (mounted) showMsg(context, 'Foto profil berhasil diperbarui');
+      } catch (e) {
+        if (mounted) showMsg(context, pesanError(e), error: true);
+      } finally {
+        if (mounted) setState(() => _loading = false);
+      }
+    }
+
+    @override
+    Widget build(BuildContext context) {
+      final foto = AuthService.instance.current?.fotoProfil;
+      return Stack(
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: AppTheme.navy,
+            backgroundImage: foto == null ? null : NetworkImage(foto),
+            child: foto == null ? Text(Fmt.inisial(widget.user.nama), style: const TextStyle(fontSize: 24, color: Colors.white, fontWeight: FontWeight.bold)) : null,
+          ),
+          Positioned(
+            right: -4,
+            bottom: -4,
+            child: IconButton.filled(
+              onPressed: _loading ? null : _pilih,
+              icon: _loading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.camera_alt, size: 16),
+            ),
+          ),
+        ],
+      );
+    }
   }
 
   Widget _baris(IconData icon, String label, String nilai) => Padding(

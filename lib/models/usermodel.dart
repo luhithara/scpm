@@ -29,6 +29,7 @@ class UserModel {
   final UserRole role;
   final String? kelas;
   final String? mapel;
+  final String? fotoProfil;
   final String? token;
 
   const UserModel({
@@ -38,6 +39,7 @@ class UserModel {
     required this.role,
     this.kelas,
     this.mapel,
+    this.fotoProfil,
     this.token,
   });
 
@@ -48,6 +50,7 @@ class UserModel {
         role: UserRoleX.parse(Jx.str(j['role'])),
         kelas: Jx.strOrNull(j['kelas'] ?? j['namaKelas'] ?? j['kodekelas']),
         mapel: Jx.strOrNull(j['mapel']),
+        fotoProfil: Jx.strOrNull(j['fotoProfil']),
         token: token ?? Jx.strOrNull(j['token']),
       );
 
@@ -58,6 +61,7 @@ class UserModel {
         'role': role.name,
         'kelas': kelas,
         'mapel': mapel,
+        'fotoProfil': fotoProfil,
         'token': token,
       };
 
@@ -68,6 +72,18 @@ class UserModel {
         role: role,
         kelas: kelas,
         mapel: mapel,
+        fotoProfil: fotoProfil,
         token: t,
       );
+
+  UserModel withFotoProfil(String? foto) => UserModel(
+          id: id,
+          nama: nama,
+          username: username,
+          role: role,
+          kelas: kelas,
+          mapel: mapel,
+          fotoProfil: foto,
+          token: token,
+        );
 }
